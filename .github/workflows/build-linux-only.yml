@@ -36,7 +36,6 @@ jobs:
         pip install -r "${{ env.FILE_REQ }}"
 
     - name: Linux (Build binary)
-      if: ${{ matrix.os == 'ubuntu-20.04' }}
       run: |
         pip install pyinstaller
         pyinstaller --onefile "${{ env.FILE_PY }}"
