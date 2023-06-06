@@ -57,7 +57,6 @@ def shed_delpath(filepath):
 	return True
 
 async def http_handler_status(request):
-	print(request.headers)
 	return web.json_response({"status":200},status=200)
 
 async def http_handler_getlist(request):
@@ -83,7 +82,7 @@ async def http_handler_addpath(request):
 
 	if (not wutt):
 		try:
-			fse=Path(data_in.get("fse"))
+			fse=Path(data_in.get("path"))
 			ttl=int(data_in.get("ttl"))
 		except:
 			wutt=True
@@ -119,10 +118,10 @@ async def http_handler_delpath(request):
 
 	if not wutt:
 		try:
-			fse=Path(data_in.get("fse"))
+			fse=Path(data_in.get("path"))
 		except:
 			wutt=True
-			jres={"status":400,"msg":"Check the 'fse' field"}
+			jres={"status":400,"msg":"Check the 'path' field"}
 
 	if not wutt:
 		ok=shed_delpath(fse)
