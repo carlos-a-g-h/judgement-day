@@ -1,0 +1,67 @@
+name: Create release and Linux build
+
+on:
+  workflow_dispatch:
+    inputs:
+      TAGNAME:
+        description: "Tag Name (Version)"
+        required: True
+        type: string
+        default: judgement-day
+
+env:
+  FILE_REQ: "req.txt"
+  FILE_PY: "jday.py"
+  NAME_LINUX: "jday.tar"
+  NAME_LINUX_STEM: "jday"
+
+jobs:
+  the-job:
+    name: The Job
+    runs-on: ubuntu-20.04
+
+    steps:
+
+    - name: Pull the repo
+      uses: actions/checkout@v3
+
+    - name: Pull the repo
+      uses: actions/checkout@v3
+
+    - name: Setup Python (1)
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9.6"
+    - name: Setup Python (2)
+      run: |
+        pip install -r "${{ env.FILE_REQ }}"
+
+    - name: Linux (Build binary)
+      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      run: |
+        pip install pyinstaller
+        pyinstaller --onefile "${{ env.FILE_PY }}"
+        mv dist "${{ env.NAME_LINUX_STEM }}"
+        # mv README.md "${{ env.NAME_LINUX_STEM }}/README.md"
+        tar -cvf "${{ env.NAME_LINUX }}" "${{ env.NAME_LINUX_STEM }}"
+
+    - name: Create release
+      id: CreateRelease
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        tag_name: "${{ inputs.TAGNAME }}"
+        release_name: "${{ inputs.TAGNAME }}"
+        draft: false
+        prerelease: false
+
+    - name: Upload the executable binary as an asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.CreateRelease.outputs.upload_url }}
+        asset_path: "${{ env.NAME_LINUX }}"
+        asset_name: "${{ env.NAME_LINUX }}"
+        asset_content_type: application/octet-stream
