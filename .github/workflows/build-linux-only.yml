@@ -7,12 +7,11 @@ on:
         description: "Tag Name (Version)"
         required: True
         type: string
-        default: judgement-day
+        default: test
 
 env:
   FILE_REQ: "req.txt"
   FILE_PY: "jday.py"
-  NAME_LINUX: "jday.tar"
   NAME_LINUX_STEM: "jday"
 
 jobs:
@@ -41,9 +40,8 @@ jobs:
       run: |
         pip install pyinstaller
         pyinstaller --onefile "${{ env.FILE_PY }}"
-        mv dist "${{ env.NAME_LINUX_STEM }}"
-        # mv README.md "${{ env.NAME_LINUX_STEM }}/README.md"
-        tar -cvf "${{ env.NAME_LINUX }}" "${{ env.NAME_LINUX_STEM }}"
+        mv -v dist/"${{ env.NAME_LINUX_STEM }}" "${{ env.NAME_LINUX_STEM }}"
+        rmdir dist
 
     - name: Create release
       id: CreateRelease
@@ -62,6 +60,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.CreateRelease.outputs.upload_url }}
-        asset_path: "${{ env.NAME_LINUX }}"
-        asset_name: "${{ env.NAME_LINUX }}"
+        asset_path: "${{ env.NAME_LINUX_STEM }}"
+        asset_name: "${{ env.NAME_LINUX_STEM }}"
         asset_content_type: application/octet-stream
