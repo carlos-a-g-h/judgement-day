@@ -1,0 +1,123 @@
+name: Create release and binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      TAGNAME:
+        description: Tag name (Version)
+        required: true
+        type: string
+        default: "test"
+
+env:
+  FILE_REQ: "req.txt"
+  FILE_PY: "jday.py"
+  NAME_LINUX: "jday-linux.tar"
+  NAME_LINUX_STEM: "jday-linux"
+  NAME_WINDOWS: "jday-windows.zip"
+  NAME_WINDOWS_STEM: "jday-windows"
+
+jobs:
+  job-one:
+    name: Build binaries
+    strategy:
+      matrix:
+        os: [windows-2019,ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+    - name: Pull the repo
+      uses: actions/checkout@v3
+
+    - name: Setup Python (1)
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9.6"
+    - name: Setup Python (2)
+      run: |
+        pip install -r "${{ env.FILE_REQ }}"
+
+    - name: Linux (Build binary)
+      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      run: |
+        pip install pyinstaller
+        pyinstaller --onefile "${{ env.FILE_PY }}"
+        mv dist "${{ env.NAME_LINUX_STEM }}"
+        # mv README.md "${{ env.NAME_LINUX_STEM }}/README.md"
+        tar -cvf "${{ env.NAME_LINUX }}" "${{ env.NAME_LINUX_STEM }}"
+
+    - name: Linux (Upload artifact)
+      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: "${{ env.NAME_LINUX }}"
+        path: "${{ env.NAME_LINUX }}"
+
+    - name: Windows (Build binary)
+      if: ${{ matrix.os == 'windows-2019' }}
+      run: |
+        pip install PyInstaller
+        python -m PyInstaller --onefile "${{ env.FILE_PY }}"
+        mv dist "${{ env.NAME_WINDOWS_STEM }}"
+        # mv "README.md" "${{ env.NAME_WINDOWS_STEM }}/README.md"
+        Compress-Archive "${{ env.NAME_WINDOWS_STEM }}" "${{ env.NAME_WINDOWS }}"
+
+    - name: Windows (Upload artifact)
+      if: ${{ matrix.os == 'windows-2019' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: "${{ env.NAME_WINDOWS }}"
+        path: "${{ env.NAME_WINDOWS }}"
+
+  job-two:
+    name: Create release and add the assets
+    needs: job-one
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Download artifact (Linux)
+      uses: actions/download-artifact@v2.1.1
+      with:
+        name: "${{ env.NAME_LINUX }}"
+
+    - name: Download artifact (Windows)
+      uses: actions/download-artifact@v2.1.1
+      with:
+        name: "${{ env.NAME_WINDOWS }}"
+
+    - name: Make sure that the files exist
+      run: |
+        ls -l "${{ env.NAME_LINUX }}"
+        ls -l "${{ env.NAME_WINDOWS }}"
+
+    - name: Create release
+      id: CreateRelease
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        tag_name: "${{ inputs.TAGNAME }}"
+        release_name: "${{ inputs.TAGNAME }}"
+        draft: false
+        prerelease: false
+
+    - name: Ubuntu / Linux (Upload Release Asset)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.CreateRelease.outputs.upload_url }}
+        asset_path: "${{ env.NAME_LINUX }}"
+        asset_name: "${{ env.NAME_LINUX }}"
+        asset_content_type: application/octet-stream
+
+    - name: Windows (Upload Release Asset)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.CreateRelease.outputs.upload_url }}
+        asset_path: "${{ env.NAME_WINDOWS }}"
+        asset_name: "${{ env.NAME_WINDOWS }}"
+        asset_content_type: application/octet-stream
