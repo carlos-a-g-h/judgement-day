@@ -41,8 +41,10 @@ def sched_addpath(filepath,ttl):
 		return False
 
 	date_target=datetime.now()+timedelta(hours=ttl)
+
 	_app_state["scheduler"].add_job(func=lambda:shred_em(filepath),trigger=date.DateTrigger(date_target),id=jid)
 	logging.info(f"#ttl #add #ok {str(filepath)}")
+
 	return True
 
 def shed_delpath(filepath):
