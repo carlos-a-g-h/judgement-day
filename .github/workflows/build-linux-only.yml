@@ -1,4 +1,4 @@
-name: Create release and Linux build
+name: Create release and build only for Linux
 
 on:
   workflow_dispatch:
