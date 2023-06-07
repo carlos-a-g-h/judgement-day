@@ -40,9 +40,9 @@ def wipedir(dirpath):
 			continue
 		fse.rmdir()
 
-def shred_em(filepath):
+def terminate(filepath):
 	if not filepath.exists():
-		logging.error(f"#ttl #end #err {str(filepath)}")
+		logging.error(f"#terminate #err {str(filepath)}")
 		return
 
 	if filepath.is_file():
@@ -51,18 +51,18 @@ def shred_em(filepath):
 	if filepath.is_dir():
 		wipedir(filepath)
 
-	logging.info(f"#ttl #end #ok {str(filepath)}")
+	logging.info(f"#terminate #ok {str(filepath)}")
 
 def sched_brand(filepath,ttl):
 	jid=str(filepath.resolve())
 	if not _app_state["scheduler"].get_job(jid)==None:
-		logging.error(f"#ttl #brand #err {str(filepath)}")
+		logging.error(f"#brand #err {str(filepath)}")
 		return False
 
 	date_target=datetime.now()+timedelta(hours=ttl)
 
-	_app_state["scheduler"].add_job(func=lambda:shred_em(filepath),trigger=date.DateTrigger(date_target),id=jid)
-	logging.info(f"#ttl #brand #ok {str(filepath)}")
+	_app_state["scheduler"].add_job(func=lambda:terminate(filepath),trigger=date.DateTrigger(date_target),id=jid)
+	logging.info(f"#brand #ok {str(filepath)}")
 
 	return True
 
@@ -70,21 +70,21 @@ def sched_absolve(filepath):
 	jid=str(filepath.resolve())
 	job=_app_state["scheduler"].get_job(jid)
 	if job==None:
-		logging.error(f"#ttl #absolve #err {str(filepath)}")
+		logging.error(f"#absolve #err {str(filepath)}")
 		return False
 
 	job.remove()
-	logging.info(f"#ttl #absolve #ok {str(filepath)}")
+	logging.info(f"#absolve #ok {str(filepath)}")
 	return True
 
 def sched_amnesty():
 	no_jobs=(len(_app_state["scheduler"].get_jobs())==0)
 	if no_jobs:
-		logging.error("#ttl #amnesty #err")
+		logging.error("#amnesty #err")
 		return False
 
 	_app_state["scheduler"].remove_all_jobs()
-	logging.error("#ttl #amnesty #ok")
+	logging.error("#amnesty #ok")
 	return True
 
 async def http_handler_status(request):
