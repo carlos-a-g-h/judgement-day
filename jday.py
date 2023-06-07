@@ -77,6 +77,16 @@ def sched_delpath(filepath):
 	logging.info(f"#ttl #del #ok {str(filepath)}")
 	return True
 
+def sched_reset():
+	no_jobs=(len(_app_state["scheduler"].get_jobs())==0)
+	if no_jobs:
+		logging.error("#ttl #reset #err")
+		return False
+
+	_app_state["scheduler"].remove_all_jobs()
+	logging.error("#ttl #reset #ok")
+	return True
+
 async def http_handler_status(request):
 	return web.json_response({"status":200},status=200)
 
@@ -88,7 +98,6 @@ async def http_handler_getlist(request):
 	return web.json_response({"status":200,"qtty":len(fse_list),"list":fse_list},status=200)
 
 async def http_handler_addpath(request):
-
 	wutt=False
 	if not request.headers.get("content-type")=="application/json":
 		wutt=True
@@ -134,7 +143,6 @@ async def http_handler_addpath(request):
 	return web.json_response(jres,status=jres["status"])
 
 async def http_handler_delpath(request):
-
 	wutt=False
 	if not request.headers.get("content-type")=="application/json":
 		wutt=True
@@ -163,6 +171,16 @@ async def http_handler_delpath(request):
 
 	return web.json_response(jres,status=jres["status"])
 
+async def http_handler_reset(request):
+	ok=sched_reset()
+	if ok:
+		jres={"status":200}
+
+	if not ok:
+		jres={"status":400,"msg":"Nothing to reset"}
+
+	return web.json_response(jres,status=jres["status"])
+		
 async def build_app():
 	app=web.Application()
 	app.add_routes([
@@ -170,6 +188,7 @@ async def build_app():
 		web.get("/getlist",http_handler_getlist),
 		web.post("/addpath",http_handler_addpath),
 		web.delete("/delpath",http_handler_delpath),
+		web.delete("/reset",http_handler_reset)
 	])
 	return app
 
