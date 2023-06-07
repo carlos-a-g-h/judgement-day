@@ -47,7 +47,7 @@ def sched_addpath(filepath,ttl):
 
 	return True
 
-def shced_delpath(filepath):
+def sched_delpath(filepath):
 	jid=str(filepath.resolve())
 	job=_app_state["scheduler"].get_job(jid)
 	if job==None:
@@ -136,7 +136,7 @@ async def http_handler_delpath(request):
 			jres={"status":400,"msg":"Check the 'path' field"}
 
 	if not wutt:
-		ok=shced_delpath(fse)
+		ok=sched_delpath(fse)
 		if ok:
 			jres={"status":200}
 		if not ok:
