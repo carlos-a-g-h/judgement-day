@@ -47,7 +47,7 @@ def sched_addpath(filepath,ttl):
 
 	return True
 
-def shed_delpath(filepath):
+def shced_delpath(filepath):
 	jid=str(filepath.resolve())
 	job=_app_state["scheduler"].get_job(jid)
 	if job==None:
@@ -91,6 +91,16 @@ async def http_handler_addpath(request):
 			jres={"status":400,"msg":"Either some fileds are missing or the values provided are not correct"}
 
 	if not wutt:
+		if not fse.exists():
+			wutt=True
+			jres={"status":400,"msg":"The target path does not exist"}
+
+	if not wutt:
+		if fse.resolve()==_app_state["basedir"]:
+			wutt=True
+			jres={"status":400,"msg":"The target path cannot match the base directory"}
+
+	if not wutt:
 		if not fse.resolve().is_relative_to(_app_state["basedir"]):
 			wutt=True
 			jres={"status":400,"msg":"The target path has to be relative to the base directory"}
@@ -126,7 +136,7 @@ async def http_handler_delpath(request):
 			jres={"status":400,"msg":"Check the 'path' field"}
 
 	if not wutt:
-		ok=shed_delpath(fse)
+		ok=shced_delpath(fse)
 		if ok:
 			jres={"status":200}
 		if not ok:
@@ -150,7 +160,7 @@ if __name__=="__main__":
 
 	app_path=Path(sys.argv[0])
 	if not len(sys.argv)==3:
-		print(f"\nJUDGEMENT DAY\n\nUsage:\n\n$ {app_path.name} Port BaseDir\n\nPort = The port to use\nBaseDir = The base directory that this program is allowed to work on\n\nAbout the BaseDir argument:\n- The base directory path cannot be the same as the program's directory\n- The program's directory cannot be one of the base directory's children\n\nWritten by Carlos Alberto González Hernández\nVersion: 2023-06-06\n")
+		print(f"\nJUDGEMENT DAY\n\nUsage:\n\n$ {app_path.name} Port BaseDir\n\nPort = The port to use\nBaseDir = The base directory that this program is allowed to work on\n\nAbout the BaseDir argument:\n- The base directory path cannot be the same as the program's directory\n- The program's directory cannot be one of the base directory's children\n\nWritten by Carlos Alberto González Hernández\nVersion: 2023-06-07\n")
 		sys.exit(0)
 
 	# Argument 1: Port
@@ -190,7 +200,7 @@ if __name__=="__main__":
 	# Logging
 	logfile=app_path.name+".log"
 	with open(logfile,"wt") as log:
-		log.write("# init\n")
+		log.write("")
 
 	logging.basicConfig(filename=logfile,format='[%(levelname) 5s/%(asctime)s] %(name)s %(funcName)s: %(msg)s',level=logging.INFO)
 
