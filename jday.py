@@ -12,18 +12,37 @@ from apscheduler.triggers import date
 
 _app_state={}
 
-def wipedir(dirpath):
-	# TODO: Try a different approach for recursive deletions, DO NOT use shutil or subprocess
-	for fse in dirpath.iterdir():
+def wipedir_loop(dirpath):
+	list_paths=[]
+	for fse in iter(dirpath.iterdir()):
+		if not fse.exists():
+			continue
 		if fse.is_file():
 			fse.unlink()
 		if fse.is_dir():
-			wipedir(fse)
-	dirpath.rmdir()
+			list_paths.append(fse)
+
+	return list_paths
+
+def wipedir(dirpath):
+	list_paths=[dirpath]
+	list_empty=[]
+	while len(list_paths)>0:
+		path_curr=list_paths.pop()
+		list_paths.extend(wipedir_loop(path_curr))
+		list_empty.append(path_curr)
+
+	list_empty.reverse()
+	for fse in iter(list_empty):
+		if not fse.exists():
+			continue
+		if not fse.is_dir():
+			continue
+		fse.rmdir()
 
 def shred_em(filepath):
 	if not filepath.exists():
-		logging.info(f"#ttl #end #err {str(filepath)}")
+		logging.error(f"#ttl #end #err {str(filepath)}")
 		return
 
 	if filepath.is_file():
@@ -196,6 +215,8 @@ if __name__=="__main__":
 		sys.exit(1)
 
 	_app_state.update({"basedir":the_basedir_abs})
+
+	print(f"\nJUDGEMENT DAY\n\nBaseDir:\n  {str(the_basedir_abs)}\n")
 
 	# Logging
 	logfile=app_path.name+".log"
