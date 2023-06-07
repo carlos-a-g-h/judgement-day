@@ -53,51 +53,51 @@ def shred_em(filepath):
 
 	logging.info(f"#ttl #end #ok {str(filepath)}")
 
-def sched_addpath(filepath,ttl):
+def sched_brand(filepath,ttl):
 	jid=str(filepath.resolve())
 	if not _app_state["scheduler"].get_job(jid)==None:
-		logging.error(f"#ttl #add #err {str(filepath)}")
+		logging.error(f"#ttl #brand #err {str(filepath)}")
 		return False
 
 	date_target=datetime.now()+timedelta(hours=ttl)
 
 	_app_state["scheduler"].add_job(func=lambda:shred_em(filepath),trigger=date.DateTrigger(date_target),id=jid)
-	logging.info(f"#ttl #add #ok {str(filepath)}")
+	logging.info(f"#ttl #brand #ok {str(filepath)}")
 
 	return True
 
-def sched_delpath(filepath):
+def sched_absolve(filepath):
 	jid=str(filepath.resolve())
 	job=_app_state["scheduler"].get_job(jid)
 	if job==None:
-		logging.error(f"#ttl #del #err {str(filepath)}")
+		logging.error(f"#ttl #absolve #err {str(filepath)}")
 		return False
 
 	job.remove()
-	logging.info(f"#ttl #del #ok {str(filepath)}")
+	logging.info(f"#ttl #absolve #ok {str(filepath)}")
 	return True
 
-def sched_reset():
+def sched_amnesty():
 	no_jobs=(len(_app_state["scheduler"].get_jobs())==0)
 	if no_jobs:
-		logging.error("#ttl #reset #err")
+		logging.error("#ttl #amnesty #err")
 		return False
 
 	_app_state["scheduler"].remove_all_jobs()
-	logging.error("#ttl #reset #ok")
+	logging.error("#ttl #amnesty #ok")
 	return True
 
 async def http_handler_status(request):
 	return web.json_response({"status":200},status=200)
 
-async def http_handler_getlist(request):
+async def http_handler_cell(request):
 	fse_list=[]
 	for job in iter(_app_state["scheduler"].get_jobs()):
 		fse_list.append({"path":job.id,"eol":str(job.trigger.run_date)})
 
 	return web.json_response({"status":200,"qtty":len(fse_list),"list":fse_list},status=200)
 
-async def http_handler_addpath(request):
+async def http_handler_brand(request):
 	wutt=False
 	if not request.headers.get("content-type")=="application/json":
 		wutt=True
@@ -134,7 +134,7 @@ async def http_handler_addpath(request):
 			jres={"status":400,"msg":"The target path has to be relative to the base directory"}
 
 	if not wutt:
-		ok=sched_addpath(fse,ttl)
+		ok=sched_brand(fse,ttl)
 		if ok:
 			jres={"status":200}
 		if not ok:
@@ -142,7 +142,7 @@ async def http_handler_addpath(request):
 
 	return web.json_response(jres,status=jres["status"])
 
-async def http_handler_delpath(request):
+async def http_handler_absolve(request):
 	wutt=False
 	if not request.headers.get("content-type")=="application/json":
 		wutt=True
@@ -163,7 +163,7 @@ async def http_handler_delpath(request):
 			jres={"status":400,"msg":"Check the 'path' field"}
 
 	if not wutt:
-		ok=sched_delpath(fse)
+		ok=sched_absolve(fse)
 		if ok:
 			jres={"status":200}
 		if not ok:
@@ -171,13 +171,13 @@ async def http_handler_delpath(request):
 
 	return web.json_response(jres,status=jres["status"])
 
-async def http_handler_reset(request):
-	ok=sched_reset()
+async def http_handler_amnesty(request):
+	ok=sched_amnesty()
 	if ok:
 		jres={"status":200}
 
 	if not ok:
-		jres={"status":400,"msg":"Nothing to reset"}
+		jres={"status":400,"msg":"The cell is empty"}
 
 	return web.json_response(jres,status=jres["status"])
 		
@@ -185,10 +185,10 @@ async def build_app():
 	app=web.Application()
 	app.add_routes([
 		web.get("/",http_handler_status),
-		web.get("/getlist",http_handler_getlist),
-		web.post("/addpath",http_handler_addpath),
-		web.delete("/delpath",http_handler_delpath),
-		web.delete("/reset",http_handler_reset)
+		web.get("/cell",http_handler_cell),
+		web.post("/brand",http_handler_brand),
+		web.delete("/absolve",http_handler_absolve),
+		web.delete("/amnesty",http_handler_amnesty)
 	])
 	return app
 
