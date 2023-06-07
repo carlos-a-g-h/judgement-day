@@ -12,7 +12,7 @@ on:
 env:
   FILE_REQ: "req.txt"
   FILE_PY: "jday.py"
-  NAME_LINUX_STEM: "jday"
+  NAME_LINUX: "jday.amd64"
 
 jobs:
   the-job:
@@ -35,19 +35,14 @@ jobs:
       run: |
         pip install -r "${{ env.FILE_REQ }}"
 
-    - name: Linux (Build binary)
+    - name: Build binary with Nuitka
       run: |
-        # pip install pyinstaller
-        # pyinstaller --onefile "${{ env.FILE_PY }}"
-        # mv -v dist/"${{ env.NAME_LINUX_STEM }}" "${{ env.NAME_LINUX_STEM }}"
-        # rmdir dist
         pip install nuitka
-        python -m nuitka --onefile "${{ env.FILE_PY }}"
-        ls -l
+        python -m nuitka --onefile "${{ env.FILE_PY }}" -o "${{ env.NAME_LINUX }}"
 
-    - name: Make sure that the files exist
+    - name: Make sure that the file exist
       run: |
-        ls -l "${{ env.NAME_LINUX_STEM }}"
+        ls -l "${{ env.NAME_LINUX }}"
 
     - name: Create release
       id: CreateRelease
@@ -66,6 +61,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.CreateRelease.outputs.upload_url }}
-        asset_path: "${{ env.NAME_LINUX_STEM }}"
-        asset_name: "${{ env.NAME_LINUX_STEM }}"
+        asset_path: "${{ env.NAME_LINUX }}"
+        asset_name: "${{ env.NAME_LINUX }}"
         asset_content_type: application/octet-stream
