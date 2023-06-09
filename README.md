@@ -37,7 +37,7 @@ NOTE about branding (adding): All target paths must be relative to the base dire
 
 ### 2023-06-08
 
-- Added an assert to ensure TTLs larger than zero
+- Attempting to set TTLs smaller than 1 will throw an error
 
 ### 2023-06-07
 
