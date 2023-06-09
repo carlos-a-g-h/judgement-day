@@ -114,6 +114,7 @@ async def http_handler_brand(request):
 		try:
 			fse=Path(data_in.get("path"))
 			ttl=int(data_in.get("ttl"))
+			assert ttl>0
 		except:
 			wutt=True
 			jres={"status":400,"msg":"Either some fileds are missing or the values provided are not correct"}
@@ -198,7 +199,7 @@ if __name__=="__main__":
 
 	app_path=Path(sys.argv[0])
 	if not len(sys.argv)==3:
-		print(f"\nJUDGEMENT DAY\n\nUsage:\n\n$ {app_path.name} Port BaseDir\n\nPort = The port to use\nBaseDir = The base directory that this program is allowed to work on\n\nAbout the BaseDir argument:\n- The base directory path cannot be the same as the program's directory\n- The program's directory cannot be one of the base directory's children\n\nWritten by Carlos Alberto González Hernández\nVersion: 2023-06-07\n")
+		print(f"\nJUDGEMENT DAY\n\nUsage:\n\n$ {app_path.name} Port BaseDir\n\nPort = The port to use\nBaseDir = The base directory that this program is allowed to work on\n\nAbout the BaseDir argument:\n- The base directory path cannot be the same as the program's directory\n- The program's directory cannot be one of the base directory's children\n\nWritten by Carlos Alberto González Hernández\nVersion: 2023-06-08\n")
 		sys.exit(0)
 
 	# Argument 1: Port
