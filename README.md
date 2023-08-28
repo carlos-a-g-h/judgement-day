@@ -25,15 +25,19 @@ In case of running without arguments, a quick help text with the usage will be s
 
 |Name and Description|Method|Route|Data required|Ok Response (200)|Err Response (4xx)|
 |-|-|-|-|-|-|
-|**Status** Always returns 200|`GET`|`/`||`JSON: {"status":200}`||
-|**Brand** Adds a path and a TTL (hours) to the cell|`POST`|`/brand`|`JSON: {"path":(String:Target path),"ttl":(Integer:Hours to live)}`|`JSON: {"status":200}`|`JSON: {"status":4xx,"msg":"Error message"}`|
-|**Cell** Shows a list of all the 'branded' paths and the quantity|`GET`|`/cell`||`JSON: {"status":200,"qtty":(Integer:Length of the cell),"list":List(List:Paths and expiration dates)}`|`JSON: {"status":4xx,"msg":"Error message"}`|
-|**Absolve** Removes a branded path from the cell|`DELETE`|`/absolve`|`JSON: {"path":(String:Branded path)}`|`JSON: {"status":200}`|`JSON: {"status":4xx,"msg":"Error message"}`|
-|**Amnesty** Removes all the branded paths from the cell|`DELETE`|`/amnesty`||`{"status":200}`|`JSON: {"status":4xx,"msg":"Error message"}`|
+|**Status**<br />Always returns 200|`GET`|`/`||`JSON: {"status":200}`||
+|**Brand**<br />Adds a path and a TTL (hours) to the cell|`POST`|`/brand`|`JSON: {"path":(String:Target path),"ttl":(Integer:Hours to live)}`|`JSON: {"status":200}`|`JSON: {"status":4xx,"msg":"Error message"}`|
+|**Cell**<br />Shows a list of all the 'branded' paths and the quantity|`GET`|`/cell`||`JSON: {"status":200,"qtty":(Integer:Length of the cell),"list":List(List:Paths and expiration dates)}`|`JSON: {"status":4xx,"msg":"Error message"}`|
+|**Absolve**<br />Removes a branded path from the cell|`DELETE`|`/absolve`|`JSON: {"path":(String:Branded path)}`|`JSON: {"status":200}`|`JSON: {"status":4xx,"msg":"Error message"}`|
+|**Amnesty**<br />Removes all the branded paths from the cell|`DELETE`|`/amnesty`||`{"status":200}`|`JSON: {"status":4xx,"msg":"Error message"}`|
 
 NOTE about branding (adding): All target paths must be relative to the base directory
 
 ## Changelog
+
+### 2023-08-28
+
+- When a directory is wiped out, it will not remain empty
 
 ### 2023-06-08
 
