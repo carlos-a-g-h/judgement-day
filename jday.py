@@ -40,7 +40,7 @@ def wipedir(dirpath):
 			continue
 		fse.rmdir()
 
-def terminate(filepath):
+def terminate(filepath,leave_empty):
 	if not filepath.exists():
 		logging.error(f"#terminate #err {str(filepath)}")
 		return
@@ -50,6 +50,9 @@ def terminate(filepath):
 
 	if filepath.is_dir():
 		wipedir(filepath)
+		if not leave_empty:
+			if len(list(filepath.iterdir()))==0:
+				filepath.unlink()
 
 	logging.info(f"#terminate #ok {str(filepath)}")
 
@@ -61,7 +64,7 @@ def sched_brand(filepath,ttl):
 
 	date_target=datetime.now()+timedelta(hours=ttl)
 
-	_app_state["scheduler"].add_job(func=lambda:terminate(filepath),trigger=date.DateTrigger(date_target),id=jid)
+	_app_state["scheduler"].add_job(func=lambda:terminate(filepath,False),trigger=date.DateTrigger(date_target),id=jid)
 	logging.info(f"#brand #ok {str(filepath)}")
 
 	return True
