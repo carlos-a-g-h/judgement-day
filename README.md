@@ -35,9 +35,9 @@ NOTE about branding (adding): All target paths must be relative to the base dire
 
 ## Changelog
 
-### 2023-08-28
+### 2023-08-30
 
-- When a directory is wiped out, it will not remain empty
+- Wiped out directories will no longer leave behind an empty directory
 
 ### 2023-06-08
 
