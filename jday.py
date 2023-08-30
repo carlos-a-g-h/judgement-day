@@ -40,7 +40,10 @@ def wipedir(dirpath):
 			continue
 		fse.rmdir()
 
-def terminate(filepath,leave_empty):
+	if len(list(dirpath.iterdir()))==0:
+		dirpath.rmdir()
+
+def terminate(filepath):
 	if not filepath.exists():
 		logging.error(f"#terminate #err {str(filepath)}")
 		return
@@ -50,9 +53,6 @@ def terminate(filepath,leave_empty):
 
 	if filepath.is_dir():
 		wipedir(filepath)
-		if not leave_empty:
-			if len(list(filepath.iterdir()))==0:
-				filepath.unlink()
 
 	logging.info(f"#terminate #ok {str(filepath)}")
 
@@ -64,7 +64,7 @@ def sched_brand(filepath,ttl):
 
 	date_target=datetime.now()+timedelta(hours=ttl)
 
-	_app_state["scheduler"].add_job(func=lambda:terminate(filepath,False),trigger=date.DateTrigger(date_target),id=jid)
+	_app_state["scheduler"].add_job(func=lambda:terminate(filepath),trigger=date.DateTrigger(date_target),id=jid)
 	logging.info(f"#brand #ok {str(filepath)}")
 
 	return True
@@ -202,7 +202,7 @@ if __name__=="__main__":
 
 	app_path=Path(sys.argv[0])
 	if not len(sys.argv)==3:
-		print(f"\nJUDGEMENT DAY\n\nUsage:\n\n$ {app_path.name} Port BaseDir\n\nPort = The port to use\nBaseDir = The base directory that this program is allowed to work on\n\nAbout the BaseDir argument:\n- The base directory path cannot be the same as the program's directory\n- The program's directory cannot be one of the base directory's children\n\nWritten by Carlos Alberto González Hernández\nVersion: 2023-06-08\n")
+		print(f"\nJUDGEMENT DAY\n\nUsage:\n\n$ {app_path.name} Port BaseDir\n\nPort = The port to use\nBaseDir = The base directory that this program is allowed to work on\n\nAbout the BaseDir argument:\n- The base directory path cannot be the same as the program's directory\n- The program's directory cannot be one of the base directory's children\n\nWritten by Carlos Alberto González Hernández\nVersion: 2023-06-30\n")
 		sys.exit(0)
 
 	# Argument 1: Port
