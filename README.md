@@ -9,10 +9,15 @@ Although the program is a web server, it is meant to run locally
 ## Usage
 
 ```
-# jday $Port $BaseDir
+# jday [Port or Socket] [BaseDir]
 ```
 `Port` → The port to use
+`Socket` → A socket file to use
 `BaseDir` → The base directory that this program is allowed to work on
+
+About binding with `Port` or `Socket`:
+- You can either bind to a port or a socket file
+- An integer is directly assumed to be a port, anything else is a socket file
 
 About the `BaseDir` argument: 
 - The base directory path cannot be the same as the program's directory
@@ -34,6 +39,10 @@ In case of running without arguments, a quick help text with the usage will be s
 NOTE about branding (adding): All target paths must be relative to the base directory
 
 ## Changelog
+
+### 2024-11-05
+
+- Added unix socket support
 
 ### 2023-08-30
 
