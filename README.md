@@ -11,8 +11,11 @@ Although the program is a web server, it is meant to run locally
 ```
 # jday [Port or Socket] [BaseDir]
 ```
+
 `Port` → The port to use
+
 `Socket` → A socket file to use
+
 `BaseDir` → The base directory that this program is allowed to work on
 
 About binding with `Port` or `Socket`:
